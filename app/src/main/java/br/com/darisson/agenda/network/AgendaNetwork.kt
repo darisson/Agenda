@@ -1,6 +1,6 @@
 package br.com.darisson.agenda.network
 
-import br.com.darisson.agenda.model.Data
+import br.com.darisson.agenda.model.Contato
 import br.com.darisson.agenda.model.User
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -22,23 +22,89 @@ object AgendaNetwork {
                 .build()
     }
 
-    fun entrar(user: User, onSuccess: (data: Data) -> Unit, onError: () -> Unit){
+    fun entrar(user: User, onSuccess: (user: User) -> Unit, onError: () -> Unit){
 
         agendaAPI.fazerLogin(user)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ data ->
+                .subscribe({ responseUser ->
 
-                    data?.let {
+                    val user = responseUser.body()
+                    user?.let {
+                        it.accessToken = responseUser.headers()["accessToken"]
+                        it.uid = responseUser.headers()["uid"]
+                        it.client = responseUser.headers()["client"]
+
                         onSuccess(it)
                     }
 
                 },{
                     onError()
                 })
-
     }
 
+    fun criarNovoUsuario(user: User, onSuccess: () -> Unit, onError: () -> Unit){
+        agendaAPI.criarConta(user)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    onSuccess()
+
+                },{
+                    onError()
+                })
+        }
 
 
+    fun logout(user: User, onSuccess: () -> Unit, onError: () -> Unit){
+        var uid: String = ""
+        var accessToken: String = ""
+        var client: String = ""
+
+        user.uid?.let {
+            uid = it
+        }
+        user.accessToken?.let {
+            accessToken = it
+        }
+        user.client?.let {
+            client = it
+        }
+
+        agendaAPI.fazerLogout(uid, client, accessToken)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    onSuccess()
+
+                },{
+                    onError()
+                })
+        }
+
+    fun criarContato(contato: Contato, onSuccess: () -> Unit, onError: () -> Unit){
+        var uid: String = ""
+        var accessToken: String = ""
+        var client: String = ""
+
+        contato.uid?.let {
+            uid = it
+        }
+        contato.accessToken?.let {
+            accessToken = it
+        }
+        contato.client?.let {
+            client = it
+        }
+
+        agendaAPI.criarContato(uid, client, accessToken)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    onSuccess()
+
+                },{
+                    onError()
+                })
+            }
 }

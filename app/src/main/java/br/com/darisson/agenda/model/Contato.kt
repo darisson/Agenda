@@ -3,11 +3,10 @@ package br.com.darisson.agenda.model
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
-open class User: RealmObject()  {
+open class Contato: RealmObject() {
 
     @PrimaryKey
     var id: Int = 0
-    var password: String? = null
     var name: String? = null
     var email: String? = null
     var phone: String? = null
@@ -16,4 +15,5 @@ open class User: RealmObject()  {
     var uid: String? = null
     var client: String? = null
     var accessToken: String? = null
+
 }
